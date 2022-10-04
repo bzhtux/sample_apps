@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-app
+spec:
+  selector:
+    matchLabels:
+      app: redis-app
+  template:
+    metadata:
+      labels:
+        app: redis-app
+    spec:
+      containers:
+      - name: redis-app
+        image: bzhtux/redis-app:v0.0.1
+        volumeMounts:
+        - mountPath: /config
+          name: config
+      volumes:
+      - configMap:
+          name: redisconfig
+        name: config
