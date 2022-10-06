@@ -72,25 +72,23 @@ kubectl get secret --namespace redis redis -o jsonpath="{.data.redis-password}" 
 
 ### Configure sample redis app
 
-Define connection informations within the k8s/01.configmap.yaml as below:
+Define connection informations within the k8s/01.secret.yaml as below:
 
 ```yaml
 apiVersion: v1
-data:
-  redis.yaml: |
-              ---
-              host: redis-master.redis.svc.cluster.local
-              port: 6379
-              username: default
-              password: 4q46qmfh8c
-              database: 0
-              sslenabled: true
-kind: ConfigMap
+kind: Secret
 metadata:
-  name: redisconfig
+  name: redis
+data:
+  host: bG9jYWxob3N0
+  port: NjM3OQ==
+  username: ZGVmYXVsdA==
+  password: 
+  database: MA==
+  sslenabled: dHJ1ZQ==
 ```
 
-Now the sample redis app is ready to be deployed using the deployment file :
+Now the sample redis app is ready to be deployed using the k8s/02.deployment file :
 
 ```yaml
 apiVersion: apps/v1
@@ -101,24 +99,75 @@ spec:
   selector:
     matchLabels:
       app: redis-app
+      app.kubernetes.io/name: redis-app
   template:
     metadata:
       labels:
         app: redis-app
+        app.kubernetes.io/name: redis-app
     spec:
       containers:
       - name: redis-app
         image: bzhtux/redis-app:v0.0.1
-        volumeMounts:
-        - mountPath: /config
-          name: config
-      volumes:
-      - configMap:
-          name: redisconfig
-        name: config
+        env:
+          - name: REDIS_HOST
+            valueFrom:
+              secretKeyRef:
+                name: redis
+                key: host
+                optional: false
+          - name: REDIS_PORT
+            valueFrom:
+              secretKeyRef:
+                name: redis
+                key: port
+                optional: false
+          - name: REDIS_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: redis
+                key: username
+                optional: false
+          - name: REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: redis
+                key: password
+                optional: false
+          - name: REDIS_DB
+            valueFrom:
+              secretKeyRef:
+                name: redis
+                key: database
+                optional: false
+          - name: REDIS_SSL
+            valueFrom:
+              secretKeyRef:
+                name: redis
+                key: sslenabled
+                optional: false
+
 ```
-The configMap will be mouted as a volume within de redis app container in `/config`.
-The redis app will consume the `/config/redis.yaml` file as the config file to connect to redis. 
+
+The secret file will be used as secretKeyRef to provide redis app env vars.
+
+To access the sample_app-redis, use the k8s/03.service.yaml :
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-app
+spec:
+  ports:
+  - name: redis-app
+    port: 8080
+    targetPort: 8080
+  selector:
+    app: redis-app
+    app.kubernetes.io/name: redis-app
+  type: LoadBalancer
+```
 
 ### Deploy redis sample app
 
