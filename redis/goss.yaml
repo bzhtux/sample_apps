@@ -1,0 +1,7 @@
+user:
+  app:
+    exists: true
+    uid: 1000
+    gid: 74
+    home: /
+    shell: /sbin/sh
