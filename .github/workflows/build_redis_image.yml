@@ -43,7 +43,7 @@ jobs:
       - name: dgoss test
         run: |
           cd redis
-          dgoss run -e "APP_PORT=8080" -e "DB_USER=pgtestuser" -e "DB_Host=0.0.0.0" -e "DB_PORT=5432" -e "DB_NAME=testgallery" -e "DB_PASSWORD=testpasswd" ${{ env.TEST_TAG }}
+          dgoss run -e ${{ env.REDIS_TEST_TAG }}
 
 
   build-and-push-redis-image:
