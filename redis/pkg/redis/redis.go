@@ -8,11 +8,7 @@ import (
 	"github.com/gomodule/redigo/redis"
 )
 
-var (
-	pool = newPool()
-)
-
-func newPool() *redis.Pool {
+func NewPool() *redis.Pool {
 
 	rc := new(models.RedisConfig)
 	rc.NewConfig()
@@ -35,19 +31,4 @@ func newPool() *redis.Pool {
 			return c, err
 		},
 	}
-}
-
-func RedisConnect() {
-	client := pool.Get()
-	defer client.Close()
-	log.Println("Setting a new key Hello with value From Tanzu Application Platform !")
-	_, err := client.Do("SET", "Hello", "From Tanzu Application Platform !")
-	if err != nil {
-		log.Println(err.Error())
-	}
-	res, err := client.Do("GET", "Hello")
-	if err != nil {
-		log.Println(err.Error())
-	}
-	log.Printf("Getting key Hello => %s \n", res)
 }
