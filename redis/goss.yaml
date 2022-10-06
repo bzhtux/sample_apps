@@ -5,3 +5,15 @@ user:
     gid: 74
     home: /
     shell: /sbin/sh
+process:
+  redis-app:
+    running: true
+package:
+  curl:
+    installed: true
+  jq:
+    installed: true
+file:
+  /config/redis.yaml:
+    exists: true
+    filetype: file
