@@ -25,6 +25,11 @@ type Config interface {
 	NewConfig()
 }
 
+type Messages struct {
+	Key   string
+	Value string
+}
+
 func (rc *RedisConfig) GetConfigFromFile() {
 	file, err := os.Open(CONFIG_DIR + "/redis.yaml")
 	if err != nil {
@@ -45,12 +50,6 @@ func (rc *RedisConfig) GetConfigFromEnv() {
 
 func (rc *RedisConfig) NewConfig() *RedisConfig {
 	rc.GetConfigFromFile()
-	// fmt.Println("Username from file: ", rc.Username)
-	// fmt.Println(rc)
 	rc.GetConfigFromEnv()
-	// fmt.Println("Username from env: ", os.Getenv("REDIS_USERNAME"))
-	// fmt.Println("Username used for RedisConfig: ", rc.Username)
-	// fmt.Println("SSL used for RedisConfig: ", rc.SSLenabled)
-	// fmt.Println(reflect.TypeOf(rc.SSLenabled))
 	return rc
 }
