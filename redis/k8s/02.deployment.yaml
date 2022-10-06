@@ -6,10 +6,12 @@ spec:
   selector:
     matchLabels:
       app: redis-app
+      app.kubernetes.io/name: redis-app
   template:
     metadata:
       labels:
         app: redis-app
+        app.kubernetes.io/name: redis-app
     spec:
       containers:
       - name: redis-app
