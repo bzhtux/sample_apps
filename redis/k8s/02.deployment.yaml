@@ -43,11 +43,11 @@ spec:
             valueFrom:
               secretKeyRef:
                 name: redis
-                key: db
+                key: database
                 optional: false
           - name: REDIS_SSL
             valueFrom:
               secretKeyRef:
                 name: redis
-                key: ssslenabled
+                key: sslenabled
                 optional: false
