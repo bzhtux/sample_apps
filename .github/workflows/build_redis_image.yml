@@ -43,7 +43,7 @@ jobs:
       - name: dgoss test
         run: |
           cd redis
-          dgoss run -e ${{ env.REDIS_TEST_TAG }}
+          dgoss run ${{ env.REDIS_TEST_TAG }}
 
 
   build-and-push-redis-image:
