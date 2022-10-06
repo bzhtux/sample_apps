@@ -40,10 +40,10 @@ jobs:
           load: true
           tags: ${{ env.REDIS_TEST_TAG }}
 
-      # - name: dgoss test
-      #   run: |
-      #     cd redis
-      #     dgoss run ${{ env.REDIS_TEST_TAG }} sleep 30
+      - name: dgoss test
+        run: |
+          cd redis
+          dgoss run ${{ env.REDIS_TEST_TAG }}
 
 
   build-and-push-redis-image:
