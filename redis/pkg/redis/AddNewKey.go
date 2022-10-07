@@ -36,7 +36,7 @@ func (h Handler) AddNewKey(c *gin.Context) {
 			} else {
 				c.JSON(http.StatusOK, gin.H{
 					"status":  "OK",
-					"message": "New key has been recorder successfuly",
+					"message": "New key has been recorded successfuly",
 					"data": gin.H{
 						"key":   msg.Key,
 						"value": msg.Value,
