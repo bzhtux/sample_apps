@@ -1,0 +1,203 @@
+---
+rules:
+  - name: whitelist
+    terms:
+      - whitelist
+      - white-list
+      - whitelisted
+      - white-listed
+    alternatives:
+      - allowlist
+      - inclusion list
+    severity: warning
+    note: "The underlying assumption of the whitelist/blacklist metaphor is that white = good and black = bad. Because colors in and of themselves have no predetermined meaning, any meaning we assign to them is cultural: for example, the color red in many Southeast Asian countries is lucky, and is often associated with events like marriages, whereas the color white carries the same connotations in many European countries. In the case of whitelist/blacklist, the terms originate in the publishing industry – one dominated by the USA and England, two countries which participated in slavery and which grapple with their racist legacies to this day."
+
+  - name: blacklist
+    terms:
+      - blacklist
+      - black-list
+      - blacklisted
+      - black-listed
+    alternatives:
+      - denylist
+      - blocklist
+      - exclusion list
+    severity: warning
+    note: "The underlying assumption of the whitelist/blacklist metaphor is that white = good and black = bad. Because colors in and of themselves have no predetermined meaning, any meaning we assign to them is cultural: for example, the color red in many Southeast Asian countries is lucky, and is often associated with events like marriages, whereas the color white carries the same connotations in many European countries. In the case of whitelist/blacklist, the terms originate in the publishing industry – one dominated by the USA and England, two countries which participated in slavery and which grapple with their racist legacies to this day."
+
+  - name: master-slave
+    terms:
+      - master-slave
+      - master/slave
+    alternatives:
+      - leader/follower
+      - primary/replica
+      - primary/standby
+
+  - name: slave
+    terms:
+      - slave
+    alternatives:
+      - follower
+      - replica
+      - standby
+
+  - name: grandfathered
+    terms:
+      - grandfathered
+    alternatives:
+      - legacy status
+
+  - name: man-hours
+    terms:
+      - man hours
+      - man-hours
+    alternatives:
+      - person hours
+      - engineer hours
+
+  - name: sanity
+    terms:
+      - sanity
+    alternatives:
+      - confidence
+      - quick check
+      - coherence check
+
+  - name: dummy
+    terms:
+      - dummy
+    alternatives:
+      - placeholder
+      - sample
+
+  - name: guys
+    terms:
+      - guys
+    alternatives:
+      - folks
+      - people
+      - you all
+      - y'all
+      - yinz
+
+  - name: whitebox
+    terms:
+      - white-box
+      - whitebox
+      - white box
+    alternatives:
+      - open-box
+
+  - name: blackbox
+    terms:
+      - black-box
+      - blackbox
+      - black box
+    alternatives:
+      - closed-box
+
+  - name: black hat 
+    terms:
+      - black hat
+      - blackhat
+    alternatives:
+      - unethical
+      - unethical hacker
+
+  - name: blackout/brownout
+    terms:
+      - blackout
+      - brownout
+    alternatives:
+      - outage
+      - failed
+      - network degradation
+
+  - name: cakewalk
+    terms:
+      - cakewalk
+    alternatives:
+      - easy
+
+  - name: disable
+    terms:
+      - disable
+    alternatives:
+      - deactivate
+
+  - name: female
+    terms:
+      - female
+    alternatives:
+      - jack
+      - socket
+
+  - name: handicap
+    terms:
+      - handicap
+    alternatives:
+      - obstacle
+      - restrict
+      - impede
+
+  - name: he/him/his
+    terms:
+      - he
+      - him
+      - his
+    alternatives:
+      - they
+      - them
+      - theirs
+    # options:
+      # word_boundary: true
+      # word_boundary_start: true
+      # word_boundary_end: true
+    severity: warning
+
+  - name: kill
+    terms:
+      - kill
+    alternatives:
+      - stop
+      - halt
+  
+  - name: male
+    terms:
+      - male
+    alternatives:
+      - plug
+
+  - name: rule of thumb
+    terms:
+      - rule of thumb
+    alternatives:
+      - rule
+      - guideline
+  
+  - name: she/her/hers
+    terms:
+      - she
+      - her
+      - hers
+    alternatives:
+      - they
+      - them
+      - theirs
+    severity: warning
+
+  - name: suffer
+    terms:
+      - suffer
+    alternatives:
+      - decrease, lessen, shrink
+      - increase, grow
+      - experience
+
+  - name: white hat
+    terms:
+      - white hat
+      - whitehat
+    alternatives:
+      - ethical
