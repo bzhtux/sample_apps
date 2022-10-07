@@ -1,0 +1,4 @@
+**/go.sum
+**/go.mod
+.github/**
+**/k8s/**
