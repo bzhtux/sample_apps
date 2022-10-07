@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pg-app
+spec:
+  selector:
+    matchLabels:
+      app: pg-app
+      app.kubernetes.io/name: pg-app
+  template:
+    metadata:
+      labels:
+        app: pg-app
+        app.kubernetes.io/name: pg-app
+    spec:
+      containers:
+      - name: pg-app
+        image: ghcr.io/bzhtux/sample_apps-postgres:pr-3
+        env:
+          - name: PG_HOST
+            valueFrom:
+              secretKeyRef:
+                name: postgres
+                key: host
+                optional: false
+          - name: PG_PORT
+            valueFrom:
+              secretKeyRef:
+                name: postgres
+                key: port
+                optional: false
+          - name: PG_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: postgres
+                key: username
+                optional: false
+          - name: PG_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: postgres
+                key: password
+                optional: false
+          - name: PG_DB
+            valueFrom:
+              secretKeyRef:
+                name: postgres
+                key: database
+                optional: false
+          - name: PG_SSL
+            valueFrom:
+              secretKeyRef:
+                name: postgres
+                key: sslenabled
+                optional: false
