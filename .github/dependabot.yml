@@ -6,6 +6,10 @@
 version: 2
 updates:
   - package-ecosystem: "gomod" # See documentation for possible values
-    directory: "bsa" # Location of package manifests
+    directory: "redis" # Location of package manifests
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "gomod" # See documentation for possible values
+    directory: "postgresql" # Location of package manifests
     schedule:
       interval: "weekly"
