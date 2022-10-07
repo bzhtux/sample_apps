@@ -42,7 +42,7 @@ jobs:
 
       - name: dgoss test
         run: |
-          cd postgres
+          cd postgresql
           dgoss run ${{ env.postgres_TEST_TAG }}
 
 
