@@ -33,17 +33,24 @@ jobs:
       - name: install goss and dgoss to test docker images
         run: curl -fsSL https://goss.rocks/install | sh
 
-      - name: build for test
-        uses: docker/build-push-action@v3
-        with:
-          context: redis
-          load: true
-          tags: ${{ env.REDIS_TEST_TAG }}
+      # - name: build for test
+      #   uses: docker/build-push-action@v3
+      #   with:
+      #     context: redis
+      #     load: true
+      #     tags: ${{ env.REDIS_TEST_TAG }}
 
-      - name: dgoss test
-        run: |
-          cd redis
-          dgoss run ${{ env.REDIS_TEST_TAG }}
+      # - name: dgoss test
+      #   run: |
+      #     cd redis
+      #     mkdir -p /tmp/sb/redis
+      #     echo -n "redis_host" > /tmp/sb/redis/host
+      #     echo -n "6379" > /tmp/sb/redis/port
+      #     echo -n "redis_username" > /tmp/sb/redis/username
+      #     echo -n "redis_password" > /tmp/sb/redis/password
+      #     echo -n "redis" > /tmp/sb/redis/type
+      #     export SERVICE_BINDING_ROOT=/tmp/sb
+      #     dgoss run -e "SERVICE_BINDING_ROOT=/tmp/sb" ${{ env.REDIS_TEST_TAG }}
 
 
   build-and-push-redis-image:
