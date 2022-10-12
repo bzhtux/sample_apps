@@ -1,11 +1,10 @@
 package models
 
 import (
-	"fmt"
 	"log"
 	"os"
 
-	"github.com/bzhtux/kubernetes-services-bindings/bindings"
+	"github.com/bzhtux/servicebinding/bindings"
 	"github.com/kelseyhightower/envconfig"
 	"gopkg.in/yaml.v2"
 )
@@ -56,13 +55,13 @@ func (rc *RedisConfig) GetConfigFromBindings(t string) {
 		log.Printf("Error while getting bindings: %s", err.Error())
 	}
 	rc.Host = b.Host
-	fmt.Printf("Redis Host: %s\n", b.Host)
+	// fmt.Printf("Redis Host: %s\n", b.Host)
 	rc.Port = int(b.Port)
-	fmt.Printf("Redis Port: %d\n", b.Port)
+	// fmt.Printf("Redis Port: %d\n", b.Port)
 	rc.Username = b.Username
-	fmt.Printf("Redis Username: %s\n", b.Username)
+	// fmt.Printf("Redis Username: %s\n", b.Username)
 	rc.Password = b.Password
-	fmt.Printf("Redis Password: %s\n", b.Password)
+	// fmt.Printf("Redis Password: %s\n", b.Password)
 }
 
 func (rc *RedisConfig) NewConfig() *RedisConfig {
