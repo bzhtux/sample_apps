@@ -16,8 +16,8 @@ func main() {
 	fmt.Printf("\033[32mLauching sample_app-redis %s...\033[0m\n", version)
 	redisPool := redis.NewPool()
 	rh := redis.New(redisPool)
-	gin.SetMode(gin.ReleaseMode)
-	// gin.SetMode(gin.DebugMode)
+	// gin.SetMode(gin.ReleaseMode)
+	gin.SetMode(gin.DebugMode)
 	router := gin.Default()
 	router.MaxMultipartMemory = 16 << 32 // 16 MiB
 
