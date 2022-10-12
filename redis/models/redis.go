@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -55,13 +56,15 @@ func (rc *RedisConfig) GetConfigFromBindings(t string) {
 		log.Printf("Error while getting bindings: %s", err.Error())
 	}
 	rc.Host = b.Host
-	// fmt.Printf("Redis Host: %s\n", b.Host)
+	fmt.Printf("Redis Host: %s\n", b.Host)
 	rc.Port = int(b.Port)
-	// fmt.Printf("Redis Port: %d\n", b.Port)
+	fmt.Printf("Redis Port: %d\n", b.Port)
 	rc.Username = b.Username
-	// fmt.Printf("Redis Username: %s\n", b.Username)
+	fmt.Printf("Redis Username: %s\n", b.Username)
 	rc.Password = b.Password
-	// fmt.Printf("Redis Password: %s\n", b.Password)
+	fmt.Printf("Redis Password: %s\n", b.Password)
+	rc.SSLenabled = b.SSL
+	fmt.Printf("Redis SSL: %v\n", b.SSL)
 }
 
 func (rc *RedisConfig) NewConfig() *RedisConfig {
