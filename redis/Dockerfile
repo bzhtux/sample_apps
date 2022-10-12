@@ -6,7 +6,7 @@ LABEL maintainer="Yannick Foeillet <bzhtux@gmail.com>"
 RUN apk --no-cache add build-base git mercurial gcc curl
 RUN mkdir -p /go/src/github.com/bzhtux/redis
 ADD . /go/src/github.com/bzhtux/redis
-RUN cd /go/src/github.com/bzhtux/redis && go get ./... && go build -o redis-app cmd/main.go
+RUN cd /go/src/github.com/bzhtux/redis && GOPROXY=direct go get -v -u ./... && go build -o redis-app cmd/main.go
 
 
 # final image
