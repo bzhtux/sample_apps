@@ -10,7 +10,7 @@ require (
 )
 
 require (
-	github.com/bzhtux/servicebinding/bindings v0.0.0-20221012124621-ad5a01b4920f
+	github.com/bzhtux/servicebinding/bindings v0.0.0-20221012153946-e4038dcca8ca
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
