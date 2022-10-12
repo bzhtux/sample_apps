@@ -7,7 +7,7 @@ require (
 	github.com/jinzhu/gorm v1.9.16
 	github.com/kelseyhightower/envconfig v1.4.0
 	gopkg.in/yaml.v2 v2.4.0
-	gorm.io/driver/postgres v1.3.10
+	gorm.io/driver/postgres v1.4.4
 	gorm.io/gorm v1.24.0
 )
 
