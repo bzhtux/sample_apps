@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: redis-app
-        image: ghcr.io/bzhtux/sample_apps-redis:v0.0.2
+        image: ghcr.io/bzhtux/sample_apps-redis:v0.0.5
         env:
           - name: REDIS_HOST
             valueFrom:
