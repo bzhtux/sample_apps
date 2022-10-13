@@ -15,41 +15,33 @@ spec:
     spec:
       containers:
       - name: redis-app
-        image: ghcr.io/bzhtux/sample_apps-redis:v0.0.5
+        image: ghcr.io/bzhtux/sample_apps-redis:v0.0.6
+        volumeMounts:
+        - name: services-binddings
+          mountPath: "/bindings"
+          readOnly: true
         env:
-          - name: REDIS_HOST
-            valueFrom:
-              secretKeyRef:
-                name: redis-app
-                key: host
-                optional: false
-          - name: REDIS_PORT
-            valueFrom:
-              secretKeyRef:
-                name: redis-app
-                key: port
-                optional: false
-          - name: REDIS_USERNAME
-            valueFrom:
-              secretKeyRef:
-                name: redis-app
-                key: username
-                optional: false
-          - name: REDIS_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: redis-app
-                key: password
-                optional: false
-          - name: REDIS_DB
-            valueFrom:
-              secretKeyRef:
-                name: redis-app
-                key: database
-                optional: false
-          - name: REDIS_SSL
-            valueFrom:
-              secretKeyRef:
-                name: redis-app
-                key: sslenabled
-                optional: false
+          - name: SERVICE_BINDING_ROOT
+            value: "/bindings"
+      volumes:
+      - name: services-binddings
+        projected:
+          sources:
+          - secret:
+              name: redis-app
+              items:
+                - key: host
+                  path: redis/host
+                - key: port
+                  path: redis/port
+                - key: username
+                  path: redis/username
+                - key: password
+                  path: redis/password
+                - key: database
+                  path: redis/database
+                - key: sslenabled
+                  path: redis/ssl
+                - key: type
+                  path: redis/type
+
