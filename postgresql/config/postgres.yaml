@@ -1,7 +1,7 @@
 ---
 host: "localhost"
 port: 5432
-username: gallery
-password: "4bo7OMx1%fn3C2ohCDzj8#_O"
-database: gallery
+username: sample_user
+password: sample_password
+database: sampledb
 sslenabled: false

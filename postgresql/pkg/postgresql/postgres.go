@@ -4,27 +4,19 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/bzhtux/sample_apps/postgresql/models"
+	"github.com/bzhtux/sample_apps/postgresql/pkg/config"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
-
-// type Handler struct {
-// 	DB *gorm.DB
-// }
-
-// func New(db *gorm.DB) Handler {
-// 	return Handler{db}
-// }
 
 func OpenDB() *gorm.DB {
 
 	// wokeignore:rule=disable
 	// dsn = fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=disable password=%s", models.PGConfig.Host, models.PGConfig.Port, models.PGConfig.Username, models.PGConfig.DB, models.PGConfig.Password)
-	pgcfg := new(models.PGConfig)
-	pgcfg.NewConfig()
+	pgc := new(config.PGConfig)
+	pgc.NewConfig()
 
-	var dsn = fmt.Sprintf("host=%s port=%d user=%s dbname=%s sslmode=disable password=%s", pgcfg.Host, pgcfg.Port, pgcfg.Username, pgcfg.DB, pgcfg.Password)
+	var dsn = fmt.Sprintf("host=%s port=%d user=%s dbname=%s sslmode=disable password=%s", pgc.Host, pgc.Port, pgc.Username, pgc.DB, pgc.Password)
 
 	conn, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
