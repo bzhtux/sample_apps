@@ -4,13 +4,13 @@
 
 Build a new docker image locally with the sample postgresql app:
 
-```shell
+```shell title="Build docker image"
 docker buildx build . --platform linux/amd64 --tag <IMAG NAME>:<IMAGE TAG>
 ```
 
 And then push this new image or use a CI system to build and push based on whateveer trigger.
 
-```shell
+```shell title="Push docker image"
 docker push <IMAG NAME>:<IMAGE TAG>
 ```
 
@@ -37,10 +37,11 @@ Create a kind cluster with extraPortMappings and node-labels.
 * extraPortMappings allow the local host to make requests to the Ingress controller over ports 80/443
 * node-labels only allow the ingress controller to run on a specific node(s) matching the label selector
 
-```yaml
+```yaml title="Create a kind cluster"
 cat <<EOF | kind create cluster --config=-
 kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
+name: postgresql-service-binding
 nodes:
 - role: control-plane
   kubeadmConfigPatches:
@@ -56,26 +57,27 @@ nodes:
   - containerPort: 443
     hostPort: 443
     protocol: TCP
+- role: worker
 EOF
 ```
 
 Now use this new cluster changing the  kubernetes context as below:
 
-```shell
-kubectl cluster-info --context kind-kind
+```shell title="switch k8s context"
+kubectl cluster-info --context postgresql-service-binding
 ```
 
 ### Namespace
 
 Create a new `namespace` to deploy the sample_apps-posstgres and a postgreeSQL DB:
 
-```shell
-create namespace pg-app
+```shell title="Create a new namepsace"
+kubectl create namespace pg-app
 ```
 
 Update kubernetes conntext to use this new namespace:
 
-```shell
+```shell title="Use this new namespace with the current k8s context"
 kubectl config set-context --current --namespace=pg-app
 ```
 
@@ -83,13 +85,13 @@ kubectl config set-context --current --namespace=pg-app
 
 Add bitnami helm repo:
 
-```shell
+```shell title="Add bitnami help repo"
 helm repo add bitnami https://charts.bitnami.com/bitnami
 ```
 
 Then install PostgreSQL:
 
-```shell
+```shell title="Install bitnami help chart for postgresql"
 helm install pg bitnami/postgresql
 ```
 
@@ -110,7 +112,7 @@ kubectl get secret --namespace pg-app pg-postgresql -o jsonpath="{.data.postgres
 kubectl exec -ti pg-postgresql-0 -- psql --host pg-postgresql -U postgres -d postgres -p 5432 -W
 ```
 
-### POstgreSQL requirements
+### PostgreSQL requirements
 
 Prepare PostgreSQL with username, password, database and extension required by the `sample_apps-postgres` application:
 
@@ -178,22 +180,23 @@ kubectl patch daemonsets -n projectcontour envoy -p '{"spec":{"template":{"spec"
 
 The following example creates a simple http service and an Ingress object to route to this services.
 
-```yaml
+```yaml title="PG service manifest"
 ---
-kind: Service
 apiVersion: v1
+kind: Service
 metadata:
   name: pg-app-svc
 spec:
+  ports:
+  - name: pg-app
+    port: 8080
+    targetPort: 8080
   selector:
     app: pg-app
     app.kubernetes.io/name: pg-app
-  ports:
-  # Default port used by the image
-  - port: 8080
 ```
 
-```yaml
+```yaml title="PG ingress manifest"
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -224,6 +227,7 @@ echo -n "sample_password" | base64
 echo -n "sampledb" | base64
 echo -n "5432" |  base64
 echo -n "pg-postgresql.pg-app.svc.cluster.local" | base64
+echo -n "postgresql" | base64
 ```
 
 ```yaml
@@ -239,6 +243,7 @@ data:
   password: c2FtcGxlX3Bhc3N3b3Jk
   database: c2FtcGxlZGI=
   sslenabled: dHJ1ZQ==
+  type: cG9zdGdyZXNxbA==
 ```
 
 ### Deploy in k8s kind
