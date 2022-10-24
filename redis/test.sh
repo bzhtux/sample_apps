@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-HOST="app-redis.127.0.0.1.nip.io"
+HOST="goredis.127.0.0.1.nip.io"
 PORT="80"
 
 echo "Adding a new key: key1=val1"
