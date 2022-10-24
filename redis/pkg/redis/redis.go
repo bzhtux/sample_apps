@@ -4,13 +4,13 @@ import (
 	"log"
 	"strconv"
 
-	"github.com/bzhtux/sample_apps/redis/models"
+	"github.com/bzhtux/sample_apps/redis/pkg/config"
 	"github.com/gomodule/redigo/redis"
 )
 
 func NewPool() *redis.Pool {
 
-	rc := new(models.RedisConfig)
+	rc := new(config.RedisConfig)
 	rc.NewConfig()
 
 	return &redis.Pool{
