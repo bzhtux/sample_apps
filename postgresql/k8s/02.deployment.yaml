@@ -15,41 +15,34 @@ spec:
     spec:
       containers:
       - name: pg-app
-        image: ghcr.io/bzhtux/sample_apps-postgres:pr-3
+        # image: ghcr.io/bzhtux/sample_apps-postgres:v0.0.6
+        image: bzhtux/pg-app:test
+        volumeMounts:
+        - name: services-bindings
+          mountPath: "/bindings"
+          readOnly: true
         env:
-          - name: PG_HOST
-            valueFrom:
-              secretKeyRef:
+          - name: SERVICE_BINDING_ROOT
+            value: "/bindings"
+      volumes:
+        - name: services-bindings
+          projected:
+            sources:
+            - secret:
                 name: postgres
-                key: host
-                optional: false
-          - name: PG_PORT
-            valueFrom:
-              secretKeyRef:
-                name: postgres
-                key: port
-                optional: false
-          - name: PG_USERNAME
-            valueFrom:
-              secretKeyRef:
-                name: postgres
-                key: username
-                optional: false
-          - name: PG_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: postgres
-                key: password
-                optional: false
-          - name: PG_DB
-            valueFrom:
-              secretKeyRef:
-                name: postgres
-                key: database
-                optional: false
-          - name: PG_SSL
-            valueFrom:
-              secretKeyRef:
-                name: postgres
-                key: sslenabled
-                optional: false
+                items:
+                  - key: host
+                    path: pg/host
+                  - key: port
+                    path: pg/port
+                  - key: username
+                    path: pg/username
+                  - key: password
+                    path: pg/password
+                  - key: database
+                    path: pg/database
+                  - key: sslenabled
+                    path: pg/ssl
+                  - key: type
+                    path: pg/type
+
