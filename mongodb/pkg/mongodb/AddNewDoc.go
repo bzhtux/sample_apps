@@ -18,7 +18,6 @@ func (h Handler) AddNewDoc(c *gin.Context) {
 			"error":   err.Error(),
 		})
 	} else {
-		// log.Printf("Book title: %s\n", book.Title)
 		if h.DocExists(book.Title) {
 			c.JSON(http.StatusConflict, gin.H{
 				"status":  "Conflict",
