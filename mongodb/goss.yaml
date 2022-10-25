@@ -1,0 +1,18 @@
+user:
+  app:
+    exists: true
+    uid: 1000
+    home: /app
+    shell: /bin/sh
+process:
+  mongo-app:
+    running: true
+package:
+  curl:
+    installed: true
+  jq:
+    installed: true
+file:
+  /config/mongo.yaml:
+    exists: true
+    filetype: file
