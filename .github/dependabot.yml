@@ -13,3 +13,7 @@ updates:
     directory: "postgresql" # Location of package manifests
     schedule:
       interval: "weekly"
+  - package-ecosystem: "gomod" # See documentation for possible values
+    directory: "mongodb" # Location of package manifests
+    schedule:
+      interval: "weekly"
