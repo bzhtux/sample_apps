@@ -6,7 +6,7 @@ require (
 	github.com/bzhtux/servicebinding/bindings v0.0.0-20221019060309-5c9197e9a434
 	github.com/gin-gonic/gin v1.8.1
 	github.com/kelseyhightower/envconfig v1.4.0
-	go.mongodb.org/mongo-driver v1.10.3
+	go.mongodb.org/mongo-driver v1.11.0
 	gopkg.in/yaml.v2 v2.4.0
 )
 
