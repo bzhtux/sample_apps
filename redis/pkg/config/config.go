@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"reflect"
@@ -9,6 +8,7 @@ import (
 	"github.com/bzhtux/sample_apps/redis/models"
 	"github.com/bzhtux/servicebinding/bindings"
 	"github.com/kelseyhightower/envconfig"
+	. "github.com/mitchellh/mapstructure"
 	"gopkg.in/yaml.v2"
 )
 
@@ -96,16 +96,20 @@ func (rc *RedisConfig) GetConfigFromBindings(t string) error {
 		log.Printf("Error while getting bindings: %s", err.Error())
 		return err
 	}
-	rc.Host = b.Host
-	fmt.Printf("Redis Host: %s\n", b.Host)
-	rc.Port = int(b.Port)
-	fmt.Printf("Redis Port: %d\n", b.Port)
-	rc.Username = b.Username
-	fmt.Printf("Redis Username: %s\n", b.Username)
-	rc.Password = b.Password
-	fmt.Printf("Redis Password: %s\n", b.Password)
-	rc.SSLenabled = b.SSL
-	fmt.Printf("Redis SSL: %v\n", b.SSL)
+
+	if err := Decode(b, &rc); err != nil {
+		return err
+	}
+	// rc.Host = b.Host
+	// fmt.Printf("Redis Host: %s\n", b.Host)
+	// rc.Port = int(b.Port)
+	// fmt.Printf("Redis Port: %d\n", b.Port)
+	// rc.Username = b.Username
+	// fmt.Printf("Redis Username: %s\n", b.Username)
+	// rc.Password = b.Password
+	// fmt.Printf("Redis Password: %s\n", b.Password)
+	// rc.SSLenabled = b.SSL
+	// fmt.Printf("Redis SSL: %v\n", b.SSL)
 	return nil
 }
 
