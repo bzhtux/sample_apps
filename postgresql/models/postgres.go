@@ -9,7 +9,7 @@ type PGSpec struct {
 	Port       int    `yaml:"port" envconnfig:"PG_PORT"`
 	Username   string `yaml:"username" envconfig:"PG_USERNAME"`
 	Password   string `yaml:"password" envconfig:"PG_PASSWORD"`
-	DB         string `yaml:"database" envconfig:"PG_DB"`
+	Database   string `yaml:"database" envconfig:"PG_DB"`
 	SSLenabled bool   `yaml:"sslenabled" envconfig:"PG_SSL"`
 }
 

@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -9,6 +8,7 @@ import (
 	"github.com/bzhtux/sample_apps/postgresql/models"
 	"github.com/bzhtux/servicebinding/bindings"
 	"github.com/kelseyhightower/envconfig"
+	. "github.com/mitchellh/mapstructure"
 	"gopkg.in/yaml.v2"
 )
 
@@ -65,17 +65,23 @@ func (cfg *PGConfig) LoadConfigFromBindings(t string) error {
 		log.Printf("Error while getting bindings: %s", err.Error())
 		return err
 	}
-	cfg.Host = b.Host
-	fmt.Printf("PostgreSQL Host: %s\n", b.Host)
-	cfg.Port = int(b.Port)
-	fmt.Printf("PostgreSQL Port: %d\n", b.Port)
-	cfg.Username = b.Username
-	fmt.Printf("PostgreSQL Username: %s\n", b.Username)
-	cfg.Password = b.Password
-	fmt.Printf("PostgreSQL Password: %s\n", b.Password)
-	cfg.DB = b.Database
-	cfg.SSLenabled = b.SSL
-	fmt.Printf("PostgreSQL SSL: %v\n", b.SSL)
+
+	if err := Decode(b, &cfg); err != nil {
+		return err
+	}
+	// cfg.Host = b.Host
+	// log.Printf("PostgreSQL Host: %s\n", cfg.Host)
+	// cfg.Port = int(b.Port)
+	// log.Printf("PostgreSQL Port: %d\n", b.Port)
+	// cfg.Username = b.Username
+	// log.Printf("PostgreSQL Username: %s\n", b.Username)
+	// cfg.Password = b.Password
+	// log.Printf("PostgreSQL Password: %s\n", b.Password)
+	// cfg.DB = b.Database
+	log.Printf("> DB: %s\n", b.Database)
+	log.Printf("> PG_DB: %S\n", cfg.Database)
+	// cfg.SSLenabled = b.SSL
+	// log.Printf("PostgreSQL SSL: %v\n",)
 	return nil
 }
 
@@ -83,5 +89,10 @@ func (cfg *PGConfig) NewConfig() *PGConfig {
 	cfg.LoadConfigFromFile()
 	cfg.LoadConfigFromBindings("postgresql")
 	cfg.LoadConfigFromEnv()
+	log.Printf("> Host: %s\n", cfg.Host)
+	log.Printf("> Port: %s\n", cfg.Port)
+	log.Printf("> User: %s\n", cfg.Username)
+	log.Printf("> Pass: %s\n", cfg.Password)
+	log.Printf("> DB: %s\n", cfg.Database)
 	return cfg
 }

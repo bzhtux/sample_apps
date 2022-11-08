@@ -16,7 +16,7 @@ func OpenDB() *gorm.DB {
 	pgc := new(config.PGConfig)
 	pgc.NewConfig()
 
-	var dsn = fmt.Sprintf("host=%s port=%d user=%s dbname=%s sslmode=disable password=%s", pgc.Host, pgc.Port, pgc.Username, pgc.DB, pgc.Password)
+	var dsn = fmt.Sprintf("host=%s port=%d user=%s dbname=%s sslmode=disable password=%s", pgc.Host, pgc.Port, pgc.Username, pgc.Database, pgc.Password)
 
 	conn, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
