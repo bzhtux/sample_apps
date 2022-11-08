@@ -8,6 +8,7 @@ import (
 	"github.com/bzhtux/sample_apps/mongodb/models"
 	"github.com/bzhtux/servicebinding/bindings"
 	"github.com/kelseyhightower/envconfig"
+	. "github.com/mitchellh/mapstructure"
 	"gopkg.in/yaml.v2"
 )
 
@@ -60,14 +61,16 @@ func (mc *MongoConfig) LoadConfigFromEnv() {
 
 func (mc *MongoConfig) LoadConfigFromBinding(t string) error {
 	b, err := bindings.NewBinding(t)
+
 	if err != nil {
 		log.Printf("Error while getting bindings: %s", err.Error())
 		return err
 	}
-	mc.Host = b.Host
-	mc.Port = uint16(b.Port)
-	mc.Username = b.Username
-	mc.Password = b.Password
+
+	if err := Decode(b, &mc); err != nil {
+		return err
+	}
+
 	return nil
 }
 
