@@ -17,7 +17,7 @@ func (h Handler) GetOneDocByTitle(c *gin.Context) {
 	encodedbook := c.Params.ByName("book")
 	b, err := url.QueryUnescape(encodedbook)
 	if err != nil {
-		log.Printf("Decoding %s error: %s", encodedbook, err.Error())
+		log.Printf("--- Decoding %s error: %s", encodedbook, err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"status":  "Internal Error",
 			"message": "Can not decode " + encodedbook,
