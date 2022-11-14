@@ -214,6 +214,7 @@ WaitForPod "${APP_POD}" 10
 echo "> Done"
 
 echo -e "\033[32m*** Running End to End tests...\033[0m"
+export APP_NAME="${APP_NAME}"
 ./test.sh
 
 echo "> Done"
