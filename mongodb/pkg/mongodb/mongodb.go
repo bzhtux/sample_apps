@@ -17,7 +17,7 @@ func NewClient() (*mongo.Client, error) {
 	var uri = "mongodb://" + mc.Username + ":" + mc.Password + "@" + mc.Host + ":" + strconv.Itoa(int(mc.Port)) + "/?maxPoolSize=20&retryWrites=true&w=majority"
 	client, err := mongo.Connect(context.TODO(), options.Client().SetConnectTimeout(3*time.Second).SetServerSelectionTimeout(3*time.Second).ApplyURI(uri))
 	if err != nil {
-		log.Printf("Error Connecting to MongoDB instance: %s\n" + err.Error())
+		log.Printf("--- Error Connecting to MongoDB instance: %s\n" + err.Error())
 		return nil, err
 	}
 	return client, nil

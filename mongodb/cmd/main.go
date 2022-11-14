@@ -18,16 +18,17 @@ func main() {
 	log.Printf("\033[32m*** Lauching sample_app-mongo %s...***\033[0m\n", version)
 	clt, err := mongodb.NewClient()
 	if err != nil {
-		log.Printf("Error Getting new MongoDB client: %s\n", err.Error())
+		log.Printf("--- Error Getting new MongoDB client: %s\n", err.Error())
 	}
 	if err := clt.Ping(context.TODO(), readpref.Primary()); err != nil {
-		log.Printf("\033[31m>>> Can not ping MongoDB innstance <<< \033[0m\n>>> %s <<<\n", err.Error())
+		log.Printf("\033[31m--- Can not ping MongoDB innstance \033[0m\n--- %s\n", err.Error())
 	} else {
-		log.Printf("\033[32m* PING MongoDB instance is OK *\033[0m\n")
+		log.Printf("\033[32m+++ PING MongoDB instance is OK *\033[0m\n")
 	}
 	mh := mongodb.New(clt)
 
 	gin.SetMode(gin.ReleaseMode)
+	// DebugMode should be used for dev only
 	// gin.SetMode(gin.DebugMode)
 	router := gin.Default()
 	router.MaxMultipartMemory = 16 << 32 // 16 MiB
@@ -40,13 +41,13 @@ func main() {
 	})
 	router.GET("/ping", func(c *gin.Context) {
 		if err := clt.Ping(context.TODO(), readpref.Primary()); err != nil {
-			log.Printf("\033[31m>>> Can not ping MongoDB innstance <<< \033[0m\n>>> %s <<<\n", err.Error())
+			log.Printf("\033[31m--- Can not ping MongoDB innstance\033[0m\n--- %s\n", err.Error())
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"status":  "Internal Error",
 				"message": "MongoDB does not respond to PING command",
 			})
 		} else {
-			log.Printf("\033[32m* PING MongoDB instance is OK *\033[0m\n")
+			log.Printf("\033[32m+++ PING MongoDB instance is OK\033[0m\n")
 			c.JSON(http.StatusOK, gin.H{
 				"status":  "Ok",
 				"message": "MongoDB responded to PING :-)",

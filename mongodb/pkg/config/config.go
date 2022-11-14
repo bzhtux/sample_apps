@@ -41,10 +41,9 @@ func GetConfigDir() *MongoConfigDir {
 
 func (mc *MongoConfig) LoadConfigFromFile() error {
 	mcd := GetConfigDir()
-	// fmt.Printf("Mongo Config Dir: %s\n", mcd.root)
 	cfg, err := os.Open(filepath.Join(mcd.root, mongoConfigFile))
 	if err != nil {
-		log.Printf("Error opening Mongo config file: %s", err.Error())
+		log.Printf("--- Error opening Mongo config file: %s", err.Error())
 		return err
 	}
 	defer cfg.Close()
@@ -63,7 +62,7 @@ func (mc *MongoConfig) LoadConfigFromBinding(t string) error {
 	b, err := bindings.NewBinding(t)
 
 	if err != nil {
-		log.Printf("Error while getting bindings: %s", err.Error())
+		log.Printf("--- Error while getting bindings: %s", err.Error())
 		return err
 	}
 
