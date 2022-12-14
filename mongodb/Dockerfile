@@ -19,7 +19,7 @@ LABEL maintainer="Yannick Foeillet <bzhtux@gmail.com>"
 RUN apk --no-cache add curl jq
 RUN adduser -h /app -s /bin/sh -u 1000 -D app
 RUN mkdir -p /config
-COPY config/mongo.yaml /config/
+COPY config/config.yml /config/
 WORKDIR /app
 COPY --from=build-env /go/src/github.com/bzhtux/mongo/mongo-app /app/
 USER 1000

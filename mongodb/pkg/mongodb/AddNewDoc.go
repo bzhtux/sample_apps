@@ -24,21 +24,19 @@ func (h Handler) AddNewDoc(c *gin.Context) {
 				"message": "Book " + book.Title + " already exists.",
 			})
 		} else {
-			var collection = models.MongoCollection{Database: "sampledb", Collection: "books"}
-			col := h.clt.Database(collection.Database).Collection(collection.Collection)
 			var doc = bson.D{{Key: "Title", Value: book.Title}, {Key: "Author", Value: book.Author}}
-			result, err := col.InsertOne(context.TODO(), doc)
+			result, err := h.col.InsertOne(context.TODO(), doc)
 
 			if err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{
 					"status":  "Server Error",
-					"message": "New book " + book.Title + " by " + book.Author + " was not added to " + collection.Collection + "' collection.",
+					"message": "New book " + book.Title + " by " + book.Author + " was not added to " + h.CFG.Database.Collection.Collection + "' collection.",
 					"error":   err.Error(),
 				})
 			} else {
 				c.JSON(http.StatusCreated, gin.H{
 					"status":  "OK",
-					"message": "New book added to " + collection.Collection + "' collection",
+					"message": "New book added to " + h.CFG.Database.Collection.Collection + "' collection",
 					"data": gin.H{
 						"Book title":  book.Title,
 						"Book Author": book.Author,

@@ -4,28 +4,35 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"strconv"
 
+	"github.com/bzhtux/sample_apps/mongodb/pkg/config"
 	"github.com/bzhtux/sample_apps/mongodb/pkg/mongodb"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
-var (
-	version = "v0.0.2"
-)
-
 func main() {
-	log.Printf("\033[32m*** Lauching sample_app-mongo %s...***\033[0m\n", version)
-	clt, err := mongodb.NewClient()
+	cfg := new(config.Conf)
+	cfg.NewConfig()
+	log.Printf("*** Config: %v", cfg)
+	log.Printf("\033[32m*** Lauching App %s with version %s on port %d***\033[0m\n", cfg.App.Name, cfg.App.Version, cfg.App.Port)
+	clt, err := mongodb.NewClient(cfg)
 	if err != nil {
-		log.Printf("--- Error Getting new MongoDB client: %s\n", err.Error())
+		log.Printf("\033[31m---- Error Getting new MongoDB client \033[0m\n--- %s\n", err.Error())
 	}
 	if err := clt.Ping(context.TODO(), readpref.Primary()); err != nil {
-		log.Printf("\033[31m--- Can not ping MongoDB innstance \033[0m\n--- %s\n", err.Error())
+		log.Printf("\033[31m--- Can not ping MongoDB instance \033[0m\n")
+		log.Printf("--- %s", err.Error())
 	} else {
 		log.Printf("\033[32m+++ PING MongoDB instance is OK *\033[0m\n")
 	}
-	mh := mongodb.New(clt)
+	col, err := mongodb.NewCollection(clt, cfg)
+	if err != nil {
+		log.Printf("\033[31m--- Error Creating new MongoDB collection \033[0m\n")
+		log.Printf("--- %s", err.Error())
+	}
+	mh := mongodb.New(clt, col, cfg)
 
 	gin.SetMode(gin.ReleaseMode)
 	// DebugMode should be used for dev only
@@ -58,5 +65,5 @@ func main() {
 	router.GET("/get/byName/:book", mh.GetOneDocByTitle)
 	router.GET("/get/byID/:uid", mh.GetOneDocByID)
 	router.DELETE("/del/byName/:book", mh.DeleteOnDocByName)
-	router.Run(":8080")
+	router.Run(":" + strconv.Itoa(cfg.App.Port))
 }

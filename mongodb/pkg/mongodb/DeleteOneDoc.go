@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/bzhtux/sample_apps/mongodb/models"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -24,10 +23,7 @@ func (h Handler) DeleteOnDocByName(c *gin.Context) {
 		})
 	}
 
-	var collection = models.MongoCollection{Database: "sampledb", Collection: "books"}
-	col := h.clt.Database(collection.Database).Collection(collection.Collection)
-
-	if _, err := col.DeleteOne(context.TODO(), bson.D{{Key: "Title", Value: b}}); err != nil {
+	if _, err := h.col.DeleteOne(context.TODO(), bson.D{{Key: "Title", Value: b}}); err != nil {
 		if err == mongo.ErrNoDocuments {
 			// This error means the query did not match any documents.
 			c.JSON(http.StatusNotFound, gin.H{

@@ -4,77 +4,75 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/bzhtux/sample_apps/mongodb/models"
 	"github.com/bzhtux/servicebinding/bindings"
 	"github.com/kelseyhightower/envconfig"
-	. "github.com/mitchellh/mapstructure"
+	"github.com/mitchellh/mapstructure"
 	"gopkg.in/yaml.v2"
 )
 
-const (
-	DEFAULT_CONFIG_DIR = "/config"
-	mongoConfigDir     = "MONGO_CONFIG_DIR"
-	mongoConfigFile    = "mongo.yaml"
+var (
+	EnvConfigDir = strings.ToUpper(AppName) + "_CONFIG_DIR"
+	AppVersion   = "0.0.2"
+	AppPort      = 8080
 )
 
-type MongoConfigDir struct {
-	root string
-}
+const (
+	DEFAULT_CONFIG_DIR    = "/config"
+	ConfigFile            = "config.yml"
+	AppName               = "gomongo"
+	AppDesc               = "Golang MongoDB App for demo purpose"
+	EnvServiceBindingRoot = "SERVICE_BINDING_ROOT"
+)
 
-type Config interface {
-	NewConfig()
-}
+type Conf models.Config
 
-type MongoConfig models.MongoSpec
-
-func GetConfigDir() *MongoConfigDir {
-	CONFIG_DIR, exists := os.LookupEnv(mongoConfigDir)
-	mcd := &MongoConfigDir{}
+func (cfg *Conf) GetConfigDir() *Conf {
+	cfg_dir, exists := os.LookupEnv(EnvConfigDir)
 	if !exists {
-		mcd.root = DEFAULT_CONFIG_DIR
+		cfg.Dir.Root = DEFAULT_CONFIG_DIR
 	} else {
-		mcd.root = CONFIG_DIR
+		cfg.Dir.Root = cfg_dir
 	}
-	return mcd
+	return cfg
 }
 
-func (mc *MongoConfig) LoadConfigFromFile() error {
-	mcd := GetConfigDir()
-	cfg, err := os.Open(filepath.Join(mcd.root, mongoConfigFile))
+func (cfg *Conf) LoadConfigFromFile() error {
+	config := cfg.GetConfigDir()
+	c, err := os.Open(filepath.Join(config.Dir.Root, ConfigFile))
 	if err != nil {
-		log.Printf("--- Error opening Mongo config file: %s", err.Error())
+		log.Printf("--- Error opening Config file: %s", err.Error())
 		return err
 	}
-	defer cfg.Close()
-	d := yaml.NewDecoder(cfg)
-	if err := d.Decode(&mc); err != nil {
+	defer c.Close()
+	d := yaml.NewDecoder(c)
+	if err := d.Decode(&cfg); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (mc *MongoConfig) LoadConfigFromEnv() {
-	envconfig.Process("", mc)
-}
-
-func (mc *MongoConfig) LoadConfigFromBinding(t string) error {
+func (cfg *Conf) LoadConfigFromBinding(t string) error {
 	b, err := bindings.NewBinding(t)
-
 	if err != nil {
-		log.Printf("--- Error while getting bindings: %s", err.Error())
+		// log.Printf("--- Error getting bindings: %s", err.Error())
 		return err
 	}
 
-	if err := Decode(b, &mc); err != nil {
+	if err := mapstructure.Decode(b, &cfg.Database); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (mc *MongoConfig) NewConfig() {
-	mc.LoadConfigFromFile()
-	mc.LoadConfigFromBinding("mongodb")
-	mc.LoadConfigFromEnv()
+func (cfg *Conf) NewConfig() {
+	// 1st : Load Config from file
+	cfg.LoadConfigFromFile()
+	// 2nd : Load Config from env
+	cfg.LoadConfigFromBinding("mongodb")
+	// 3rd : Load Config from Bindings
+	envconfig.Process("", cfg.Database)
 }
