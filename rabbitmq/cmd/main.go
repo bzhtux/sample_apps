@@ -9,22 +9,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const (
-	version = "0.0.1"
-)
-
 func main() {
-	log.Printf("\033[32m***********************************\n")
-	log.Printf("*** Starting with version: %s ***\n", version)
-	log.Printf("***********************************\033[0m\n")
-
-	// Set new configuration for RabbitMQ using the config pkg
-	// For more details see pkg/config/config.go file
-	rc := new(config.RMQConfig)
-	rc.NewConfig()
+	cfg := new(config.Conf)
+	cfg.NewConfig()
+	log.Printf("\033[32mLauching App %s with version %s on port %d\033[0m\n", cfg.App.Name, cfg.App.Version, cfg.App.Port)
 
 	// Get a new RabbitMQ client
-	clt, err := rmq.NewConn()
+	clt, err := rmq.NewConn(cfg)
+
 	if err != nil {
 		log.Printf("--- Error Getting new RMQ client: %s\n", err.Error())
 	}
@@ -37,7 +29,7 @@ func main() {
 
 	// Set a new RabbitMQ handler
 	// For more details see pkg/rmq/handler.go file
-	rh := rmq.New(clt, ch, rc.Queue)
+	rh := rmq.New(clt, ch, cfg.Database.Queue)
 
 	// gin.SetMode(gin.ReleaseMode)
 	// DebugMode should be used for dev only
@@ -47,12 +39,12 @@ func main() {
 
 	// Declare a RabbitMQ queue for sending message through
 	q, err := ch.QueueDeclare(
-		rc.Queue, // name
-		true,     // durable
-		false,    // delete when unused
-		false,    // exclusive
-		false,    // no-wait
-		nil,      // arguments
+		cfg.Database.Queue, // name
+		true,               // durable
+		false,              // delete when unused
+		false,              // exclusive
+		false,              // no-wait
+		nil,                // arguments
 	)
 	if err != nil {
 		log.Printf("--- Error setting RMQ Queue: %s\n", err.Error())

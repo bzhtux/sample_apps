@@ -6,6 +6,7 @@ LABEL maintainer="Yannick Foeillet <bzhtux@gmail.com>"
 RUN apk --no-cache add build-base git mercurial gcc curl
 RUN mkdir -p /go/src/github.com/bzhtux/postgres
 ADD . /go/src/github.com/bzhtux/postgres
+RUN cd /go/src/github.com/bzhtux/postgres && go get ./... && go build -o postgres-app cmd/main.go
 WORKDIR /go/src/github.com/bzhtux/postgres
 RUN go get ./...
 RUN go build -o postgres-app cmd/main.go

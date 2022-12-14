@@ -196,36 +196,125 @@ spec:
 Define connection informations and crededentials within the k8s/01.secret.yaml as below:
 
 ```shell
-echo -n "redis-master.redis-app.svc.cluster.local" | base64
-echo -n "default" | base64
-echo -n "redswriter" | base64
-echo -n "6379" |  base64
-echo -n "0" | base64
-echo -n "redis-master.redis-app.svc.cluster.local" | base64
+export REDIS_HOST=$(echo -n "redis-master.redis-demo.svc.cluster.local" | base64)
+export REDIS_USER=$(echo -n "default" | base64)
+export REDIS_PASS=$(kubectl get secret --namespace redis-demo redis -o jsonpath="{.data.redis-password}")
+export REDIS_PORT=$(echo -n "6379" |  base64)
+export REDIS_DB=$(echo -n "0" | base64)
+export REDIS_SSL=$(echo -n false | base64)
+export REDIS_TYPE=$(echo -n redis | base64)
 ```
 
 ```yaml
+cat <<EOF | kubectl apply -f-
 apiVersion: v1
 kind: Secret
 metadata:
-  name: redis
+  name: goredis
 data:
-  host: cmVkaXMtbWFzdGVyLnJlZGlzLWFwcC5zdmMuY2x1c3Rlci5sb2NhbA==
-  port: NjM3OQ==
-  username: ZGVmYXVsdA==
-  password: a2d3SGQ0NFB6Yw==
-  database: MA==
-  sslenabled: ZmFsc2U=
+  host: $REDIS_HOST
+  port: $REDIS_PORT
+  username: $REDIS_USER
+  password: $REDIS_PASS
+  database: $REDIS_DB
+  sslenabled: $REDIS_SSL
+  type: $REDIS_TYPE
 ```
 
-### Deploy in k8s kind
+### Deploy redis sample app
 
 ```shell
-kubectl create -f k8s/
-secret/redis created
-deployment.apps/redis-app created
-service/redis-app created
-ingress.networking.k8s.io/sample-apps-ingress created
+cat <<EOF | kubectl apply -f-
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: goredis
+spec:
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: goredis
+      app.kubernetes.io/name: goredis
+  template:
+    metadata:
+      labels:
+        app: goredis
+        app.kubernetes.io/name: goredis
+    spec:
+      containers:
+      - name: goredis
+        # image: ghcr.io/bzhtux/sample_apps-redis:v0.0.5
+        image: bzhtux/redis-app:test
+        imagePullPolicy: Always
+        volumeMounts:
+        - name: services-bindings
+          mountPath: /bindings
+          readOnly: true
+        env:
+        - name: SERVICE_BINDING_ROOT
+          value: /bindings
+      volumes:
+      - name: services-bindings
+        projected:
+          sources:
+          - secret:
+              name: goredis
+              items:
+              - key: host
+                path: redis/host
+              - key: port
+                path: redis/port
+              - key: username
+                path: redis/username
+              - key: password
+                path: redis/password
+              - key: database
+                path: redis/database
+              - key: sslenabled
+                path: redis/sslenabled
+              - key: type
+                path: mongodb/type
+EOF
+```
+
+```shell
+cat <<EOF | kubectl apply -f-
+apiVersion: v1
+kind: Service
+metadata:
+  name: goredis
+spec:
+  ports:
+  - name: goredis
+    port: 8080
+    targetPort: 8080
+  selector:
+    app: goredis
+    app.kubernetes.io/name: goredis
+EOF
+```
+
+```shell
+cat <<EOF | kubectl apply -f-
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: goredis
+spec:
+  ingressClassName: contour
+  rules:
+  - host: goredis.127.0.0.1.nip.io
+    http:
+      paths:
+      - backend: 
+          service:
+            name: goredis
+            port:
+              number: 8080
+        pathType: Prefix
+        path: /
+EOF
 ```
 
 Test the deployment:
@@ -275,13 +364,4 @@ Deleting key1
 }
 ```
 
-Logs from the container:
-
-```text
-redis-app-5c7699b6bd-vclsm redis-app Lauching sample_app-redis v0.0.1...
-redis-app-5c7699b6bd-vclsm redis-app 2022/10/07 14:38:34 Setting a new key key1 with value val1
-redis-app-5c7699b6bd-vclsm redis-app [GIN] 2022/10/07 - 14:38:34 | 200 |   12.603373ms |      172.18.0.1 | POST     "/add"
-redis-app-5c7699b6bd-vclsm redis-app [GIN] 2022/10/07 - 14:38:34 | 409 |     2.00916ms |      172.18.0.1 | POST     "/add"
-redis-app-5c7699b6bd-vclsm redis-app [GIN] 2022/10/07 - 14:38:34 | 200 |    1.650912ms |      172.18.0.1 | GET      "/get/key1"
-redis-app-5c7699b6bd-vclsm redis-app [GIN] 2022/10/07 - 14:38:34 | 200 |    2.493383ms |      172.18.0.1 | DELETE   "/del/key1"
-```
+It works !

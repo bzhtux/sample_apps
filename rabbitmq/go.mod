@@ -3,16 +3,19 @@ module github.com/bzhtux/sample_apps/rabbitmq
 go 1.19
 
 require (
+	github.com/bzhtux/servicebinding v1.0.1
 	github.com/gin-gonic/gin v1.8.1
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/rabbitmq/amqp091-go v1.5.0
 	gopkg.in/yaml.v2 v2.4.0
 )
 
-require github.com/mitchellh/mapstructure v1.5.0 // indirect
+require (
+	github.com/jinzhu/copier v0.3.5
+	github.com/mitchellh/mapstructure v1.5.0
+)
 
 require (
-	github.com/bzhtux/servicebinding/bindings v0.0.0-20221026140015-49543914590f
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
