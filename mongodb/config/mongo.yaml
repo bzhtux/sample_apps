@@ -1,5 +1,0 @@
----
-host: localhost
-port: 27017
-username: mongo_user
-password: mongo_pass
