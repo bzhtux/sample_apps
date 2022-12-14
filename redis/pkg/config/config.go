@@ -59,7 +59,6 @@ func (cfg *Conf) LoadConfigFromFile() error {
 	return nil
 }
 
-<<<<<<< HEAD
 func (cfg *Conf) LoadConfigFromBindings(t string) error {
 	b, err := bindings.NewBinding(t)
 	if err != nil {
