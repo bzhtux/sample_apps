@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 set -euo pipefail
+
 # HOST="${APP_NAME}.127.0.0.1.nip.io"
 HOST="app-pg.127.0.0.1.nip.io"
 PORT="80"

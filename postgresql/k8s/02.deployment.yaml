@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pg-app
+spec:
+  selector:
+    matchLabels:
+      app: pg-app
+      app.kubernetes.io/name: pg-app
+  template:
+    metadata:
+      labels:
+        app: pg-app
+        app.kubernetes.io/name: pg-app
+    spec:
+      containers:
+      - name: pg-app
+        # image: ghcr.io/bzhtux/sample_apps-postgres:v0.0.6
+        image: bzhtux/pg-app:test
+        volumeMounts:
+        - name: services-bindings
+          mountPath: "/bindings"
+          readOnly: true
+        env:
+          - name: SERVICE_BINDING_ROOT
+            value: "/bindings"
+      volumes:
+        - name: services-bindings
+          projected:
+            sources:
+            - secret:
+                name: postgres
+                items:
+                  - key: host
+                    path: pg/host
+                  - key: port
+                    path: pg/port
+                  - key: username
+                    path: pg/username
+                  - key: password
+                    path: pg/password
+                  - key: database
+                    path: pg/database
+                  - key: sslenabled
+                    path: pg/ssl
+                  - key: type
+                    path: pg/type
+

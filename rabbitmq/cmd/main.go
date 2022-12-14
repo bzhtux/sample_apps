@@ -16,6 +16,7 @@ func main() {
 
 	// Get a new RabbitMQ client
 	clt, err := rmq.NewConn(cfg)
+
 	if err != nil {
 		log.Printf("--- Error Getting new RMQ client: %s\n", err.Error())
 	}

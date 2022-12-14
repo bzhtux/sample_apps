@@ -2,7 +2,7 @@
 
 ## Docker build image
 
-Build a new docker image with the sample redis app:
+Build a new docker image locally with the sample redis app:
 
 ```shell
 docker buildx build . --platform linux/amd64 --tag <IMAG NAME>:<IMAGE TAG>
@@ -14,46 +14,87 @@ And then push this new image or use a CI system to build and push based on whate
 docker push <IMAG NAME>:<IMAGE TAG>
 ```
 
+## Out Of the Box images
+
+Github Actions automate the build of the sample_apps-redis app. All images can be found and pull from:
+
+```text
+https://github.com/bzhtux/sample_apps/pkgs/container/sample_apps-redis/versions
+```
+
+```shell
+docker pull ghcr.io/bzhtux/sample_apps-redis:<version>
+```
+
 ## Test it locally
 
 ### Create a kind cluster
 
-```shell
-kind create cluster --name redis
-Creating cluster "redis" ...
- ✓ Ensuring node image (kindest/node:v1.25.2) 🖼
- ✓ Preparing nodes 📦
- ✓ Writing configuration 📜
- ✓ Starting control-plane 🕹️
- ✓ Installing CNI 🔌
- ✓ Installing StorageClass 💾
-Set kubectl context to "kind-redis"
-You can now use your cluster with:
-
-kubectl cluster-info --context kind-redis
-
-Not sure what to do next? 😅  Check out https://kind.sigs.k8s.io/docs/user/quick-start/
+```yaml
+cat <<EOF | kind create cluster --config=-
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+- role: control-plane
+  kubeadmConfigPatches:
+  - |
+    kind: InitConfiguration
+    nodeRegistration:
+      kubeletExtraArgs:
+        node-labels: "ingress-ready=true"
+  extraPortMappings:
+  - containerPort: 80
+    hostPort: 80
+    protocol: TCP
+  - containerPort: 443
+    hostPort: 443
+    protocol: TCP
+EOF
 ```
 
-Now create a namespace to deploy redis sample app:
+Now use this new cluster changing the  kubernetes context as below:
 
 ```shell
-kubectl create namespace redis
+kubectl cluster-info --context kind-kind
 ```
 
-Update kubernetes context to use this new namespace:
+### Namespace
+
+Create a new `namespace` to deploy the sample_apps-posstgres and a postgreeSQL DB:
 
 ```shell
-kubectl config set-context --current --namespace=redis
+create namespace redis-app
 ```
 
-### Deploy a Redis cluster using helm
+Update kubernetes conntext to use this new namespace:
 
-Add bitnami help repo and deploy a Redis cluster:
+```shell
+kubectl config set-context --current --namespace=redis-app
+```
+
+### Deploy Redis using helm
+
+Add bitnami helm repo:
 
 ```shell
 helm repo add bitnami https://charts.bitnami.com/bitnami
+```
+
+Then install Redis:
+
+```shell
 helm install redis bitnami/redis
+```
+
+Redis can be accessed on the following DNS names from within your cluster:
+
+* `redis-master.redis-app.svc.cluster.local for read/write operations (port 6379)`
+* `redis-replicas.redis-app.svc.cluster.local for read-only operations (port 6379)`
+
+To get your password run the following command:
+
+```shell
+kubectl get secret --namespace redis-app redis -o jsonpath="{.data.redis-password}" | base64 -d
 ```
 
 Write down the Redis host from peevious output:
@@ -67,10 +108,10 @@ redis-master.redis.svc.cluster.local
 Get the Redis password:
 
 ```shell
-kubectl get secret --namespace redis redis -o jsonpath="{.data.redis-password}" | base64 -d
+kubectl get secret --namespace redis-app redis -o jsonpath="{.data.redis-password}" | base64 -d
 ```
 
-### Configure sample redis app
+### Use Contour as the Ingress controller
 
 Deploy Contour components:
 
@@ -276,23 +317,51 @@ spec:
 EOF
 ```
 
-To test redis sample app can connect to redis, tail logs from the app pod:
+Test the deployment:
 
 ```shell
-kubectl get pods
-NAME                         READY   STATUS             RESTARTS     AGE
-redis-app-5558b7999c-5jw8k   0/1     CrashLoopBackOff   1 (4s ago)   6s
-redis-master-0               1/1     Running            0            5m7s
-redis-replicas-0             1/1     Running            0            5m7s
-redis-replicas-1             1/1     Running            0            4m6s
-redis-replicas-2             1/1     Running            0            3m41s
+curl -sL http://app-redis.127.0.0.1.nip.io/ | jq .
+{
+  "message": "Alive",
+  "status": "Up"
+}
 ```
 
+Update  test.sh with the hotname `app-redis.127.0.0.1.nip.io` and run the tests:
+
 ```shell
-kubectl logs -f redis-app-5558b7999c-5jw8k
-Testing Golang Redis ...
-2022/10/04 11:32:17 Setting a new key Hello with value From Tanzu Application Platform !
-2022/10/04 11:32:17 Getting key Hello => From Tanzu Application Platform !
+./test.sh
+Adding a new key: key1=val1
+{
+  "data": {
+    "key": "key1",
+    "value": "val1"
+  },
+  "message": "New key has been recorder successfuly",
+  "status": "OK"
+}
+
+Adding twice the same key, expecting a conflict
+{
+  "message": "Key already exists: key1",
+  "status": "Conflict"
+}
+
+Getting the previous key: key1
+{
+  "data": {
+    "key": "key1",
+    "value": "val1"
+  },
+  "message": "Key was found",
+  "status": "Ok"
+}
+
+Deleting key1
+{
+  "message": "Key was successfuly deleted: key1",
+  "status": "Ok"
+}
 ```
 
 It works !
