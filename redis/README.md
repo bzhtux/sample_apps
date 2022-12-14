@@ -16,7 +16,7 @@ docker push <IMAG NAME>:<IMAGE TAG>
 
 ## Test it locally
 
-### Create a kind cluster:
+### Create a kind cluster
 
 ```shell
 kind create cluster --name redis
@@ -72,114 +72,208 @@ kubectl get secret --namespace redis redis -o jsonpath="{.data.redis-password}" 
 
 ### Configure sample redis app
 
-Define connection informations within the k8s/01.secret.yaml as below:
+Deploy Contour components:
 
-```yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: redis
-data:
-  host: bG9jYWxob3N0
-  port: NjM3OQ==
-  username: ZGVmYXVsdA==
-  password: 
-  database: MA==
-  sslenabled: dHJ1ZQ==
+```shell
+kubectl apply -f https://projectcontour.io/quickstart/contour.yaml
 ```
 
-Now the sample redis app is ready to be deployed using the k8s/02.deployment file :
+Apply kind specific patches to forward the hostPorts to the ingress controller, set taint tolerations and schedule it to the custom labelled node.
 
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: redis-app
-spec:
-  selector:
-    matchLabels:
-      app: redis-app
-      app.kubernetes.io/name: redis-app
-  template:
-    metadata:
-      labels:
-        app: redis-app
-        app.kubernetes.io/name: redis-app
-    spec:
-      containers:
-      - name: redis-app
-        image: bzhtux/redis-app:v0.0.1
-        env:
-          - name: REDIS_HOST
-            valueFrom:
-              secretKeyRef:
-                name: redis
-                key: host
-                optional: false
-          - name: REDIS_PORT
-            valueFrom:
-              secretKeyRef:
-                name: redis
-                key: port
-                optional: false
-          - name: REDIS_USERNAME
-            valueFrom:
-              secretKeyRef:
-                name: redis
-                key: username
-                optional: false
-          - name: REDIS_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: redis
-                key: password
-                optional: false
-          - name: REDIS_DB
-            valueFrom:
-              secretKeyRef:
-                name: redis
-                key: database
-                optional: false
-          - name: REDIS_SSL
-            valueFrom:
-              secretKeyRef:
-                name: redis
-                key: sslenabled
-                optional: false
-
+```json
+{
+  "spec": {
+    "template": {
+      "spec": {
+        "nodeSelector": {
+          "ingress-ready": "true"
+        },
+        "tolerations": [
+          {
+            "key": "node-role.kubernetes.io/control-plane",
+            "operator": "Equal",
+            "effect": "NoSchedule"
+          },
+          {
+            "key": "node-role.kubernetes.io/master",
+            "operator": "Equal",
+            "effect": "NoSchedule"
+          }
+        ]
+      }
+    }
+  }
+}
 ```
 
-The secret file will be used as secretKeyRef to provide redis app env vars.
+```shell
+kubectl patch daemonsets -n projectcontour envoy -p '{"spec":{"template":{"spec":{"nodeSelector":{"ingress-ready":"true"},"tolerations":[{"key":"node-role.kubernetes.io/control-plane","operator":"Equal","effect":"NoSchedule"},{"key":"node-role.kubernetes.io/master","operator":"Equal","effect":"NoSchedule"}]}}}}'
+```
 
-To access the sample_app-redis, use the k8s/03.service.yaml :
+### Ingress usage
+
+The following example creates a simple http service and an Ingress object to route to this services.
 
 ```yaml
-apiVersion: v1
+---
 kind: Service
+apiVersion: v1
 metadata:
-  name: redis-app
+  name: redis-app-svc
 spec:
-  ports:
-  - name: redis-app
-    port: 8080
-    targetPort: 8080
   selector:
     app: redis-app
     app.kubernetes.io/name: redis-app
-  type: LoadBalancer
+  ports:
+  # Default port used by the image
+  - port: 8080
+```
+
+```yaml
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: sample-apps-ingress
+spec:
+  ingressClassName: contour
+  rules:
+  - host: app-redis.127.0.0.1.nip.io
+    http:
+      paths:
+      - backend: 
+          service:
+            name: redis-app-svc
+            port:
+              number: 8080
+        pathType: Prefix
+        path: /
+```
+
+### Define Redis configuration
+
+Define connection informations and crededentials within the k8s/01.secret.yaml as below:
+
+```shell
+export REDIS_HOST=$(echo -n "redis-master.redis-demo.svc.cluster.local" | base64)
+export REDIS_USER=$(echo -n "default" | base64)
+export REDIS_PASS=$(kubectl get secret --namespace redis-demo redis -o jsonpath="{.data.redis-password}")
+export REDIS_PORT=$(echo -n "6379" |  base64)
+export REDIS_DB=$(echo -n "0" | base64)
+export REDIS_SSL=$(echo -n false | base64)
+export REDIS_TYPE=$(echo -n redis | base64)
+```
+
+```yaml
+cat <<EOF | kubectl apply -f-
+apiVersion: v1
+kind: Secret
+metadata:
+  name: goredis
+data:
+  host: $REDIS_HOST
+  port: $REDIS_PORT
+  username: $REDIS_USER
+  password: $REDIS_PASS
+  database: $REDIS_DB
+  sslenabled: $REDIS_SSL
+  type: $REDIS_TYPE
 ```
 
 ### Deploy redis sample app
 
 ```shell
-kubectl create -f k8s/
+cat <<EOF | kubectl apply -f-
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: goredis
+spec:
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: goredis
+      app.kubernetes.io/name: goredis
+  template:
+    metadata:
+      labels:
+        app: goredis
+        app.kubernetes.io/name: goredis
+    spec:
+      containers:
+      - name: goredis
+        # image: ghcr.io/bzhtux/sample_apps-redis:v0.0.5
+        image: bzhtux/redis-app:test
+        imagePullPolicy: Always
+        volumeMounts:
+        - name: services-bindings
+          mountPath: /bindings
+          readOnly: true
+        env:
+        - name: SERVICE_BINDING_ROOT
+          value: /bindings
+      volumes:
+      - name: services-bindings
+        projected:
+          sources:
+          - secret:
+              name: goredis
+              items:
+              - key: host
+                path: redis/host
+              - key: port
+                path: redis/port
+              - key: username
+                path: redis/username
+              - key: password
+                path: redis/password
+              - key: database
+                path: redis/database
+              - key: sslenabled
+                path: redis/sslenabled
+              - key: type
+                path: mongodb/type
+EOF
 ```
 
-The result should look like:
+```shell
+cat <<EOF | kubectl apply -f-
+apiVersion: v1
+kind: Service
+metadata:
+  name: goredis
+spec:
+  ports:
+  - name: goredis
+    port: 8080
+    targetPort: 8080
+  selector:
+    app: goredis
+    app.kubernetes.io/name: goredis
+EOF
+```
 
 ```shell
-configmap/redisconfig created
-deployment.apps/redis-app created
+cat <<EOF | kubectl apply -f-
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: goredis
+spec:
+  ingressClassName: contour
+  rules:
+  - host: goredis.127.0.0.1.nip.io
+    http:
+      paths:
+      - backend: 
+          service:
+            name: goredis
+            port:
+              number: 8080
+        pathType: Prefix
+        path: /
+EOF
 ```
 
 To test redis sample app can connect to redis, tail logs from the app pod:
