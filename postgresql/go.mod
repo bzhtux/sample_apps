@@ -4,8 +4,9 @@ go 1.19
 
 require (
 	github.com/bzhtux/servicebinding v1.0.1
-	github.com/gin-gonic/gin v1.8.1
+	github.com/gin-gonic/gin v1.8.2
 	github.com/jinzhu/copier v0.3.5
+	github.com/jinzhu/gorm v1.9.16
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/mitchellh/mapstructure v1.5.0
 	gopkg.in/yaml.v2 v2.4.0
