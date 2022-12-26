@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/bzhtux/servicebinding v1.0.1
-	github.com/gin-gonic/gin v1.8.1
+	github.com/gin-gonic/gin v1.8.2
 	github.com/gomodule/redigo v1.8.9
 	github.com/jinzhu/copier v0.3.5
 	github.com/kelseyhightower/envconfig v1.4.0
